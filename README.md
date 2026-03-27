@@ -1,6 +1,6 @@
-<h1 align="center"><pre>╔═╗╔═╗  ╦ ╦╔═╗╔═╗╦═╗═╗ ╦
-╠═╣╚═╗  ║║║╠═╣╚═╗╠╦╝╔╩╦╝
-╩ ╩╚═╝  ╚╩╝╩ ╩╚═╝╩╚═╩ ╚═</pre></h1>
+<h1 align="center"><pre>╔═╗ ╔═╗    ╦ ╦ ╔═╗ ╔═╗ ╦ ═╗ ╦
+╠═╣ ╚═╗ ══ ║║║ ╠═╣ ╚═╗ ║ ╔╩╦╝
+╩ ╩ ╚═╝    ╚╩╝ ╩ ╩ ╚═╝ ╩ ╩ ╚═</pre></h1>
 
 <p align="center">
 AssemblyScript bindings for WASIX (<code>wasix_32v1</code>) with <code>wasi_snapshot_preview1</code> re-exported for compatibility.
@@ -26,6 +26,7 @@ AssemblyScript bindings for WASIX (<code>wasix_32v1</code>) with <code>wasi_snap
 
 ```bash
 npm install as-wasix
+npm install -D @assemblyscript/wasi-shim
 ```
 
 ## Quick Start

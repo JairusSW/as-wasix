@@ -28,15 +28,13 @@
     "test:ci": "ast test --disable coverage --clean",
     "verify": "npm run generate:bindings && npm run asbuild && npm run test:ci"
   },
-  "dependencies": {
-    "@assemblyscript/wasi-shim": "^0.1.0"
-  },
   "devDependencies": {
+    "@assemblyscript/wasi-shim": "^0.1.0",
     "as-test": "^1.0.3",
     "assemblyscript": "^0.28.9"
   },
   "peerDependencies": {
-    "assemblyscript": "^0.28.9"
+    "@assemblyscript/wasi-shim": "^0.1.0"
   },
   "keywords": [
     "assemblyscript",
