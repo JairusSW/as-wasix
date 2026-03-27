@@ -1,0 +1,12 @@
+node_modules
+pnpm-lock.yaml
+*.lock
+build/
+.DS_Store
+.as-test/build/
+.as-test/coverage/
+.as-test/logs/
+.as-test/crashes/
+.as-test/
+vendor/
+.cache/
