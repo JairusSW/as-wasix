@@ -103,6 +103,7 @@ describe("all function exports", () => {
     expect(changetype<usize>(api.fs.openAt) > 0).toBe(true);
     expect(changetype<usize>(api.fs.fdFlagsGet) > 0).toBe(true);
     expect(changetype<usize>(api.fs.fdFlagsSet) > 0).toBe(true);
+    expect(changetype<usize>(api.fs.writeFile) > 0).toBe(true);
     expect(changetype<usize>(api.tty.get) > 0).toBe(true);
     expect(changetype<usize>(api.tty.set) > 0).toBe(true);
     expect(changetype<usize>(api.thread.spawnV2) > 0).toBe(true);

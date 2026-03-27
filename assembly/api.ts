@@ -1,4 +1,12 @@
 import * as raw from "./bindings/wasix_32v1";
+import {
+  errno as wasiErrno,
+  fd_close as wasiFdClose,
+  fd_write as wasiFdWrite,
+  oflags as wasiOflags,
+  path_open as wasiPathOpen,
+  rights as wasiRights,
+} from "@assemblyscript/wasi-shim/assembly/bindings/wasi_snapshot_preview1";
 
 export type Errno = i32;
 export type Fd = i32;
@@ -23,6 +31,9 @@ export namespace clock {
 }
 
 export namespace fs {
+  const PREOPEN_DIR_FD: Fd = 3;
+  const MAX_PREOPEN_DIR_FD: Fd = 32;
+
   export function getcwd(pathPtr: i32, pathLenPtr: i32): Errno {
     return raw.getcwd(pathPtr, pathLenPtr);
   }
@@ -80,6 +91,54 @@ export namespace fs {
 
   export function fdFlagsSet(fd: Fd, flags: i32): Errno {
     return raw.fd_fdflags_set(fd, flags);
+  }
+
+  export function writeFile(path: string, contents: string, dirfd: Fd = PREOPEN_DIR_FD): Errno {
+    const pathBytes = String.UTF8.encode(path, false);
+    const contentBytes = String.UTF8.encode(contents, false);
+
+    const outFdPtr = memory.data(sizeof<u32>());
+    const iovPtr = memory.data(3 * sizeof<usize>());
+
+    let openErr: wasiErrno = wasiErrno.BADF;
+    if (dirfd == PREOPEN_DIR_FD) {
+      for (let preopenFd: Fd = PREOPEN_DIR_FD; preopenFd <= MAX_PREOPEN_DIR_FD; preopenFd++) {
+        openErr = wasiPathOpen(
+          <u32>preopenFd,
+          0,
+          changetype<usize>(pathBytes),
+          pathBytes.byteLength,
+          wasiOflags.CREAT | wasiOflags.TRUNC,
+          wasiRights.FD_WRITE,
+          0,
+          0,
+          outFdPtr,
+        );
+        if (openErr == wasiErrno.SUCCESS) break;
+      }
+    } else {
+      openErr = wasiPathOpen(
+        <u32>dirfd,
+        0,
+        changetype<usize>(pathBytes),
+        pathBytes.byteLength,
+        wasiOflags.CREAT | wasiOflags.TRUNC,
+        wasiRights.FD_WRITE,
+        0,
+        0,
+        outFdPtr,
+      );
+    }
+    if (openErr != wasiErrno.SUCCESS) return openErr;
+
+    const fileFd = load<u32>(outFdPtr);
+    store<usize>(iovPtr, changetype<usize>(contentBytes));
+    store<usize>(iovPtr + sizeof<usize>(), contentBytes.byteLength);
+
+    const writeErr = wasiFdWrite(fileFd, iovPtr, 1, iovPtr + 2 * sizeof<usize>());
+    const closeErr = wasiFdClose(fileFd);
+
+    return writeErr != wasiErrno.SUCCESS ? writeErr : closeErr;
   }
 }
 

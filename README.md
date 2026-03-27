@@ -26,10 +26,42 @@ AssemblyScript bindings for WASIX (<code>wasix_32v1</code>) with <code>wasi_snap
 
 ```bash
 npm install as-wasix
-npm install -D @assemblyscript/wasi-shim
+npm install @assemblyscript/wasi-shim
 ```
 
 ## Quick Start
+
+Create `assembly/index.ts`:
+
+```ts
+import { errno, fd_write } from "as-wasix";
+
+const tempbuf = memory.data(3 * sizeof<usize>());
+const msg = String.UTF8.encode("Hello, WASIX from as-wasix!\n", false);
+
+store<usize>(tempbuf, changetype<usize>(msg));
+store<usize>(tempbuf + sizeof<usize>(), msg.byteLength);
+
+const err = fd_write(1, tempbuf, 1, tempbuf + 2 * sizeof<usize>());
+if (err != errno.SUCCESS) {
+  unreachable();
+}
+```
+
+Build and run:
+
+```bash
+npx asc assembly/index.ts --target release --outFile build/hello.wasm
+wasmer run build/hello.wasm
+```
+
+Expected output:
+
+```text
+Hello, WASIX from as-wasix!
+```
+
+For a slightly more API-oriented snippet:
 
 ```ts
 import { fs, thread, proc, ensureOk } from "as-wasix";
@@ -41,8 +73,24 @@ const cwdBuf = new Uint8Array(256);
 const cwdLen = new Uint32Array(1);
 cwdLen[0] = cwdBuf.length;
 
-const errno = fs.getcwd(changetype<i32>(cwdBuf.dataStart), changetype<i32>(cwdLen.dataStart));
-ensureOk(errno, "fs.getcwd");
+const err = fs.getcwd(changetype<i32>(cwdBuf.dataStart), changetype<i32>(cwdLen.dataStart));
+ensureOk(err, "fs.getcwd");
+```
+
+To write `./hello_world.txt`:
+
+```ts
+import { ensureOk, fs } from "as-wasix";
+
+ensureOk(fs.writeFile("hello_world.txt", "Hello, world!\n"), "fs.writeFile");
+```
+
+```bash
+cd assembly/examples
+npx asc write_hello_world.ts --config ../../node_modules/@assemblyscript/wasi-shim/asconfig.json --target release --outFile ../../build/write_hello_world.wasm
+cd ../..
+wasmer run build/write_hello_world.wasm --dir=.
+cat hello_world.txt
 ```
 
 ## API Overview
@@ -102,10 +150,15 @@ Please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the MIT License.
-See [LICENSE](./LICENSE).
+This project is distributed under an open source license. Work on this project is done by passion, but if you want to support it financially, you can do so by making a donation to the project's [GitHub Sponsors](https://github.com/sponsors/JairusSW) page.
+
+You can view the full license using the following link: [License](./LICENSE)
 
 ## Contact
 
-- Author: Jairus Tanaka
-- GitHub: [@JairusSW](https://github.com/JairusSW)
+Please send all issues to [GitHub Issues](https://github.com/JairusSW/json-as/issues) and to converse, please send me an email at [me@jairus.dev](mailto:me@jairus.dev)
+
+- **Email:** Send me inquiries, questions, or requests at [me@jairus.dev](mailto:me@jairus.dev)
+- **GitHub:** Visit the official GitHub repository [Here](https://github.com/JairusSW/json-as)
+- **Website:** Visit my official website at [jairus.dev](https://jairus.dev/)
+- **Discord:** Contact me at [My Discord](https://discord.com/users/600700584038760448) or on the [AssemblyScript Discord Server](https://discord.gg/assemblyscript/)
